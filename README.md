@@ -1,151 +1,101 @@
 # TCP Port Scanner
 
-**Week 1 at Syntecxhub | Cybersecurity Internship**  
+**A Python-based TCP Port Scanner | Cybersecurity Project**  
 
-For my first week at Syntecxhub, I worked on building a TCP port scanner using Python.  
+## Project Overview
 
-The goal was to understand how port scanning works, how Python sockets establish connections, and how multithreading can make the process faster.  
+For this project, I built a simple TCP port scanner using Python to understand how port scanning works and how devices communicate over a network.  
 
-The scanner checks a target for open, closed, and unresponsive ports, then displays the results and saves them to a log file.  
+The assignment was to create a tool that checks a target machine for open, closed, and timed-out TCP ports. I also wanted to get more comfortable with Python socket programming, multithreading and handling network errors.  
 
-## Objectives
+I built and tested the scanner in Kali Linux.
 
-* Build a TCP port scanner that checks open ports on a host.  
-* Learn socket programming basics and concurrency (threads).  
-* Add options for scanning a single host or a range of ports.  
-* Print and log results (open/closed/timeouts) and handle exceptions.  
+## What the Project Does
+
+The scanner can:
+
+- Scan a single target IP address.
+- Scan a specified range of TCP ports.
+- Identify open and closed ports.
+- Detect connection timeouts.
+- Use multithreading to scan multiple ports concurrently.
+- Handle connection errors and exceptions.
+- Record scan results in a log file.
+
+## Technologies Used
+
+- **Python 3** – Main programming language.
+- **Kali Linux** – Environment used to execute and test the scanner.
+- **Socket Programming** – Establishing TCP connections.
+- **ThreadPoolExecutor** – Managing concurrent port scans.
+- **Logging** – Recording scan results.
 
 ## How It Works
 
-The scanner attempts to connect to each specified port using Python's `socket` module and `connect_ex()`.
+The scanner uses Python's `socket` library to attempt TCP connections to individual ports on a target machine.
 
-Depending on the response, it identifies whether a port is open, closed, or timed out.
+Depending on the response, each port is classified as:
 
-To avoid checking every port one at a time, I used Python's `ThreadPoolExecutor` to run multiple connection attempts concurrently.
+- **OPEN:** A TCP connection was successfully established.
+- **CLOSED:** The target refused the connection.
+- **TIMEOUT:** No response was received within the configured timeout.
+- **ERROR:** Another connection or network error occurred.
 
-The scanner identifies the following states:
+To make scanning more efficient, I used `ThreadPoolExecutor` to check multiple ports concurrently instead of scanning them one at a time.
 
-| Result     | Meaning                                              |
-| ---------- | ---------------------------------------------------- |
-| 🟢 Open    | A TCP connection was successfully established.       |
-| 🔴 Closed  | The connection was refused.                          |
-| 🟡 Timeout | No response was received within the configured time. |
-| ⚠️ Error   | A connection or other execution error occurred.      |
+## Testing and Results
 
-## Technologies & Tools
+For testing, I used the **Kioptrix Level 1 vulnerable machine** from my local lab environment.
 
-* **Language:** Python 3.8+
-* **Networking:** Socket Programming
-* **Concurrency:** `ThreadPoolExecutor`, `as_completed()`
-* **Logging:** Python Logging Module
-* **CLI:** `argparse`
-* **Libraries:** Python Standard Library
+I used its assigned IP address as the target to see how the scanner performed against a deliberately vulnerable machine with network services running.
 
-No third-party packages are required.
+The testing helped me understand how exposed ports can reveal services running on a target machine and why port enumeration is an important part of network reconnaissance.
 
-## Project Structure
+I also tested the scanner against localhost (`127.0.0.1`) to verify its basic functionality.
 
-```text
-tcp-port-scanner/
-│
-├── scanner.py       # Main port scanning script
-├── scan.log         # Scan results and activity logs
-└── README.md        # Project documentation
-```
+## Running the Project
 
-## 💻 Usage
-
-The scanner accepts a target hostname or IP address, along with optional scanning parameters.
-
-### Scan the default port range (1–1024)
+Run the scanner:
 
 ```bash
-python3 scanner.py 127.0.0.1
+python3 port_scanner.py --host 127.0.0.1 --start-port 1 --end-port 100
 ```
 
-### Scan a single port
+To scan the Kioptrix machine, replace the example IP with its actual assigned IP address:
 
 ```bash
-python3 scanner.py 127.0.0.1 -p 22
+python3 port_scanner.py --host 192.168.100.7 --start-port 1 --end-port 1024
 ```
 
-### Scan a custom port range
+You can also adjust the number of threads and connection timeout:
 
 ```bash
-python3 scanner.py 127.0.0.1 -p 1-1000
-```
-
-### Scan specific ports
-
-```bash
-python3 scanner.py 127.0.0.1 -p 22,80,443,8080
-```
-
-### Adjust the connection timeout
-
-```bash
-python3 scanner.py 127.0.0.1 -p 1-1024 -t 2
-```
-
-### Change the number of concurrent workers
-
-```bash
-python3 scanner.py 127.0.0.1 -p 1-1024 -w 50
-```
-
-### Specify a log file
-
-```bash
-python3 scanner.py 127.0.0.1 -p 1-1024 -l results.log
-```
-
-## Sample Output
-
-The following is an example of what the scan summary looks like:
-
-```text
-Scanning 127.0.0.1 (127.0.0.1) — 1024 port(s)...
-
-=== Scan Summary ===
-Target:   127.0.0.1 (127.0.0.1)
-Time:     2026-11-17 10:30:00
-Open:     2 -> [22, 80]
-Closed:   1024
-Timeouts: 0
-Errors:   0
+python3 port_scanner.py --host 192.168.100.7 --start-port 1 --end-port 1024 --threads 50 --timeout 1
 ```
 
 ## What I Learned
 
-This lab gave me a chance to get more comfortable working with Python sockets and understand what actually happens during a TCP connection attempt.
+This project gave me an opportunity to put some Python and networking concepts into practice.
 
-Some of the things I worked with along the way:
+Some of my key takeaways were:
 
-* **TCP Socket Programming:** Creating sockets and attempting network connections.
-* **Port Scanning:** Identifying open and closed ports on a target.
-* **Multithreading:** Using `ThreadPoolExecutor` to scan multiple ports concurrently.
-* **Exception Handling:** Handling connection failures, timeouts, and hostname resolution errors.
-* **Input Validation:** Checking hostnames and port specifications before scanning.
-* **Resource Management:** Making sure sockets are properly closed using `finally`.
-* **Logging:** Saving scan results for later review.
-* **CLI Design:** Using `argparse` to make the scanner configurable from the terminal.
+- Understanding how TCP connections work through socket programming.
+- Learning how open and closed ports respond to connection attempts.
+- Using multithreading to improve scanning efficiency.
+- Handling network timeouts and connection exceptions.
+- Understanding how port scanning contributes to reconnaissance during a security assessment.
 
-## What's Next?
+It was also a good exercise in troubleshooting, especially when working with virtual machines and making sure the target and scanning machine could communicate over the same network.
 
-I'd like to build on this scanner by experimenting with a few additional features:
+## Future Improvements
 
-* **Banner Grabbing:** Identifying services running on open ports.
-* **Service Name Lookup:** Mapping commonly used port numbers to service names.
-* **CSV/JSON Export:** Saving scan results in structured formats.
-* **Rate Limiting:** Controlling scanning speed to avoid overwhelming a target.
-* **Asynchronous Scanning:** Exploring Python's `asyncio` as an alternative to multithreading.
+There are a few things I'd like to explore as I continue working on this project:
 
-## ⚠️ Responsible Use
-
-This tool was developed for educational purposes and network reconnaissance practice.
-
-Only scan systems you own or have explicit permission to assess. Always follow applicable laws and network usage policies.
+- Add basic service detection for open ports.
+- Export scan results to CSV.
+- Improve the scan summary and reporting.
+- Add command-line options for saving results to custom log files.
 
 ---
 
-**Part of my Week 1 cybersecurity tasks at Syntecxhub.** 🔐
+**Note:** This tool was developed for educational purposes and testing within my own lab environment. Only scan systems you own or have explicit permission to assess.
