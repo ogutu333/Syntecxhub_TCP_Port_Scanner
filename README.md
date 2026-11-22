@@ -61,7 +61,7 @@ Run the scanner:
 python3 port_scanner.py --host 127.0.0.1 --start-port 1 --end-port 100
 ```
 
-To scan the Kioptrix machine, replace the example IP with its actual assigned IP address:
+To scan the Kioptrix machine:
 
 ```bash
 python3 port_scanner.py --host 192.168.100.7 --start-port 1 --end-port 1024
