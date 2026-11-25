@@ -10,6 +10,10 @@ The assignment was to create a tool that checks a target machine for open, close
 
 I built and tested the scanner in Kali Linux.
 
+> **Ethical Use & Disclaimer**
+>
+> This tool was developed for educational purposes and tested within my own lab environment. Only scan systems you own or have explicit permission to assess. Unauthorized scanning may violate organizational policies or applicable laws.
+
 ## What the Project Does
 
 The scanner can:
@@ -45,13 +49,33 @@ To make scanning more efficient, I used `ThreadPoolExecutor` to check multiple p
 
 ## Testing and Results
 
-For testing, I used the **Kioptrix Level 1 vulnerable machine** from my local lab environment.
+I tested the scanner against Kioptrix Level 1, a deliberately vulnerable machine running in my local lab environment.
 
-I used its assigned IP address as the target to see how the scanner performed against a deliberately vulnerable machine with network services running.
+**Target:** `192.168.100.7`  
+**Scan Type:** TCP Connect Scan  
+**Port Range:** `1–1024`  
+**Environment:** Kali Linux and Kioptrix Level 1
 
-The testing helped me understand how exposed ports can reveal services running on a target machine and why port enumeration is an important part of network reconnaissance.
+### Scan Findings
 
-I also tested the scanner against localhost (`127.0.0.1`) to verify its basic functionality.
+The scan identified the following open ports:
+
+| Port | Detected Service | Observation |
+|---|---|---|
+| 22 | SSH | Remote administration service accepting TCP connections |
+| 80 | HTTP | Web service accepting TCP connections |
+
+The remaining ports recorded in the scan output were classified as closed.
+
+### Security Observations
+
+The results revealed two accessible services on the target machine: SSH and HTTP. From a defender's perspective, these services represent potential entry points that should be monitored and assessed for unnecessary exposure, weak configurations and known vulnerabilities.
+
+SSH provides remote administration access, while HTTP exposes a web service that may require further security assessment. Identifying these services is an important first step in understanding a host's network attack surface.
+
+The scan results demonstrate how basic TCP port scanning can support reconnaissance, asset visibility and defensive security assessments.
+
+The scan also demonstrated why identifying open ports is important during network reconnaissance. On Kioptrix Level 1, ports 22 (SSH) and 80 (HTTP) were accessible, revealing remote administration and web services exposed by the target. In a SOC environment, comparing these findings against expected network configurations can help identify unauthorised services, unexpected exposure and potential attack surfaces.
 
 ## Running the Project
 
@@ -73,29 +97,25 @@ You can also adjust the number of threads and connection timeout:
 python3 port_scanner.py --host 192.168.100.7 --start-port 1 --end-port 1024 --threads 50 --timeout 1
 ```
 
-## What I Learned
+## Security Observations
 
-This project gave me an opportunity to put some Python and networking concepts into practice.
+Port scanning provides visibility into the network attack surface by identifying which TCP ports accept incoming connections.
 
-Some of my key takeaways were:
+Some important security observations from this project:
 
-- Understanding how TCP connections work through socket programming.
-- Learning how open and closed ports respond to connection attempts.
-- Using multithreading to improve scanning efficiency.
-- Handling network timeouts and connection exceptions.
-- Understanding how port scanning contributes to reconnaissance during a security assessment.
+- **Attack Surface Visibility:** Open ports reveal services that may be accessible to an attacker during reconnaissance. Unnecessary exposed services increase the potential attack surface.
+- **Service Exposure:** Services running on unexpected ports or services that should not be publicly accessible may indicate misconfiguration or unauthorised changes.
+- **Network Behaviour:** Connection responses provide useful information about how a target handles incoming connections. Timeouts and refused connections can help distinguish different network conditions, although they do not independently confirm a security incident.
+- **Defensive Monitoring:** Repeated or unusual connection attempts across multiple ports can be useful indicators when investigating reconnaissance activity in network logs.
 
-It was also a good exercise in troubleshooting, especially when working with virtual machines and making sure the target and scanning machine could communicate over the same network.
+From a SOC perspective, understanding normal network exposure makes it easier to identify unexpected services, investigate suspicious scanning activity and recognise potential attack paths.
 
 ## Future Improvements
 
-There are a few things I'd like to explore as I continue working on this project:
+There are a few areas I'd like to explore as I continue developing this project:
 
-- Add basic service detection for open ports.
-- Export scan results to CSV.
-- Improve the scan summary and reporting.
-- Add command-line options for saving results to custom log files.
-
----
-
-**Note:** This tool was developed for educational purposes and testing within my own lab environment. Only scan systems you own or have explicit permission to assess.
+- **Service Detection:** Identify common services running on open ports to help detect unexpected or potentially unauthorised services on monitored hosts.
+- **CSV Export:** Export scan results into structured CSV reports for easier analysis, comparison and security documentation.
+- **Improved Scan Reporting:** Generate more detailed reports highlighting exposed ports and potential attack-surface risks.
+- **Custom Logging:** Add configurable log file paths to make scan results easier to organise and integrate into security analysis workflows.
+- **Scan Comparison:** Introduce functionality to compare scan results over time and identify newly exposed or closed ports that could indicate changes in the host's network configuration.
